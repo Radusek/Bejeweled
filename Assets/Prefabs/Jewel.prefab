@@ -88,12 +88,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Delegates:
-  - eventID: 4
+  - eventID: 3
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3288344076474441825}
+          m_MethodName: OnMouseButtonRelease
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 2
     callback:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 3288344076474441825}
           m_MethodName: OnClick
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3288344076474441825}
+          m_MethodName: OnMousePointerEnter
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -115,3 +145,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c4734ed57bba1c4f8b5225ccc6ed77d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jewelColors:
+  - {r: 0.15022665, g: 0.8679245, b: 0.061409745, a: 1}
+  - {r: 0.120016046, g: 0.18679512, b: 0.8773585, a: 1}
+  - {r: 0.18792273, g: 0.87147367, b: 0.9716981, a: 1}
+  - {r: 0.8773585, g: 0.12829298, b: 0.12829298, a: 1}
