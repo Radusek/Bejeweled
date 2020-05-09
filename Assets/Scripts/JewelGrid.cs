@@ -1,13 +1,18 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class JewelGrid : MonoBehaviour
 {
     [SerializeField]
     private GameObject jewelPrefab;
 
+    [Tooltip("X should not be a smaller value than Y")]
     [SerializeField]
     private Vector2Int gridSize;
+
+    [SerializeField]
+    private float panelSize = 1000f;
 
     private Jewel[,] jewelGrid;
 
@@ -22,7 +27,9 @@ public class JewelGrid : MonoBehaviour
 
     private void Awake()
     {
-        jewelGrid = new Jewel[gridSize.x, gridSize.y];
+        AdjustGridLayoutGroup();
+
+        jewelGrid = new Jewel[gridSize.y, gridSize.x];
 
         for (int i = 0; i < gridSize.y; i++)
         {
@@ -33,6 +40,14 @@ public class JewelGrid : MonoBehaviour
         }
     }
 
+    private void AdjustGridLayoutGroup()
+    {
+        int gridSizeMax = Mathf.Max(gridSize.x, gridSize.y);
+        float cellSize = panelSize / gridSizeMax;
+        GridLayoutGroup gridLayoutGroup = GetComponent<GridLayoutGroup>();
+        gridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
+    }
+
     private void CreateJewel(int i, int j)
     {
         GameObject newJewel = Instantiate(jewelPrefab, transform);
@@ -41,6 +56,12 @@ public class JewelGrid : MonoBehaviour
         jewelScript.Grid = this;
         jewelScript.GridIndex = new Vector2Int(i, j);
         jewelGrid[i, j] = jewelScript;
+    }
+
+    private void OnValidate()
+    {
+        if (gridSize.x < gridSize.y)
+            gridSize.x = gridSize.y;
     }
 
     public void JewelClicked(Vector2Int index)
