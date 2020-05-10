@@ -21,6 +21,10 @@ public class JewelGrid : MonoBehaviour
     private bool mouseButtonHeld;
     private Vector2Int clickedJewelIndex;
 
+    private Jewel[] lastSwappedJewels;
+
+    private bool playerInducedAnimation;
+
     [SerializeField]
     private float swappingTime = 0.5f;
 
@@ -38,6 +42,8 @@ public class JewelGrid : MonoBehaviour
                 CreateJewel(i, j);
             }
         }
+
+        lastSwappedJewels = new Jewel[2];
     }
 
     private void AdjustGridLayoutGroup()
@@ -54,7 +60,7 @@ public class JewelGrid : MonoBehaviour
         Jewel jewelScript = newJewel.GetComponent<Jewel>();
 
         jewelScript.Grid = this;
-        jewelScript.GridIndex = new Vector2Int(i, j);
+        jewelScript.GridIndex = new Vector2Int(j, i);
         jewelGrid[i, j] = jewelScript;
     }
 
@@ -90,12 +96,13 @@ public class JewelGrid : MonoBehaviour
         mouseButtonHeld = false;
     }
 
-    public void SwapJewels(Vector2Int indexA, Vector2Int indexB)
+    public void SwapJewels(Vector2Int indexA, Vector2Int indexB, bool playerInduced = true)
     {
-        Jewel jewelA = jewelGrid[indexA.x, indexA.y];
-        Jewel jewelB = jewelGrid[indexB.x, indexB.y];
+        Jewel jewelA = jewelGrid[indexA.y, indexA.x];
+        Jewel jewelB = jewelGrid[indexB.y, indexB.x];
 
         swappingAnimations = 2;
+        playerInducedAnimation = playerInduced;
 
         jewelA.transform.DOLocalMove(jewelB.transform.localPosition, swappingTime).OnComplete(OnSwappingAnimationCompleted);
         jewelB.transform.DOLocalMove(jewelA.transform.localPosition, swappingTime).OnComplete(OnSwappingAnimationCompleted);
@@ -104,12 +111,60 @@ public class JewelGrid : MonoBehaviour
         jewelA.GridIndex = jewelB.GridIndex;
         jewelB.GridIndex = jewelAIndex;
 
-        jewelGrid[indexA.x, indexA.y] = jewelB;
-        jewelGrid[indexB.x, indexB.y] = jewelA;
+        jewelGrid[indexA.y, indexA.x] = jewelB;
+        jewelGrid[indexB.y, indexB.x] = jewelA;
+
+        lastSwappedJewels[0] = jewelA;
+        lastSwappedJewels[1] = jewelB;
     }
 
     private void OnSwappingAnimationCompleted()
     {
         swappingAnimations--;
+
+        if (playerInducedAnimation && swappingAnimations == 0)
+        {
+            if (IsMatchFound(lastSwappedJewels[0]) || IsMatchFound(lastSwappedJewels[1]))
+            {
+                Debug.Log("Match Found!");
+            }
+            else
+                Debug.Log("No match found.");
+        }
+    }
+
+    private bool IsMatchFound(Jewel jewel)
+    {
+        Vector2Int jewelIndex = jewel.GridIndex;
+        JewelType jewelType = jewel.Type;
+
+        for (int i = 0; i < 2; i++)
+        {
+            int maxJewelsInARow = 0;
+            int jewelsInARow = 0;
+
+            for (int j = jewelIndex[i] - 2; j <= jewelIndex[i] + 2; j++)
+            {
+                if (j < 0 || j >= gridSize[i])
+                    continue;
+
+                Jewel currentJewel = i == 0 ? jewelGrid[jewelIndex.y, j] : jewelGrid[j, jewelIndex.x];
+
+                if (currentJewel.Type == jewelType)
+                {
+                    jewelsInARow++;
+
+                    if (jewelsInARow > maxJewelsInARow)
+                        maxJewelsInARow = jewelsInARow;
+                }
+                else
+                    jewelsInARow = 0;
+            }
+
+            if (maxJewelsInARow >= 3)
+                return true;
+        }
+
+        return false;
     }
 }
