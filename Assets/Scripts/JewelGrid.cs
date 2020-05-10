@@ -129,7 +129,10 @@ public class JewelGrid : MonoBehaviour
                 Debug.Log("Match Found!");
             }
             else
+            {
+                SwapJewels(lastSwappedJewels[0].GridIndex, lastSwappedJewels[1].GridIndex, false);
                 Debug.Log("No match found.");
+            }
         }
     }
 
