@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +29,8 @@ public class JewelGrid : MonoBehaviour
     [SerializeField]
     private float swappingTime = 0.5f;
 
+    private List<Jewel> matchingJewels;
+
 
     private void Awake()
     {
@@ -44,6 +47,7 @@ public class JewelGrid : MonoBehaviour
         }
 
         lastSwappedJewels = new Jewel[2];
+        matchingJewels = new List<Jewel>();
     }
 
     private void AdjustGridLayoutGroup()
@@ -124,8 +128,17 @@ public class JewelGrid : MonoBehaviour
 
         if (playerInducedAnimation && swappingAnimations == 0)
         {
-            if (IsMatchFound(lastSwappedJewels[0]) || IsMatchFound(lastSwappedJewels[1]))
+            matchingJewels.Clear();
+            matchingJewels.InsertRange(0, GetMatchingJewels(lastSwappedJewels[0]));
+            matchingJewels.InsertRange(0, GetMatchingJewels(lastSwappedJewels[1]));
+
+            if (matchingJewels.Count > 0)
             {
+                foreach (var matchingJewel in matchingJewels)
+                {
+                    matchingJewel.MakeMatched();
+                    //funkcja może być wywołana dwukrotnie dla pary klejnotów tego samego typu po ich zamianie, nie będzie się to więcej zdarzać gdy zrobimy kasowanie wszystkich istniejących rzędów na planszy
+                }
                 Debug.Log("Match Found!");
             }
             else
@@ -136,15 +149,16 @@ public class JewelGrid : MonoBehaviour
         }
     }
 
-    private bool IsMatchFound(Jewel jewel)
+    private List<Jewel> GetMatchingJewels(Jewel jewel)
     {
+        List<Jewel> resultJewels = new List<Jewel>();
+
         Vector2Int jewelIndex = jewel.GridIndex;
         JewelType jewelType = jewel.Type;
 
         for (int i = 0; i < 2; i++)
         {
-            int maxJewelsInARow = 0;
-            int jewelsInARow = 0;
+            List<Jewel> tmpJewels = new List<Jewel>();
 
             for (int j = jewelIndex[i] - 2; j <= jewelIndex[i] + 2; j++)
             {
@@ -155,19 +169,35 @@ public class JewelGrid : MonoBehaviour
 
                 if (currentJewel.Type == jewelType)
                 {
-                    jewelsInARow++;
-
-                    if (jewelsInARow > maxJewelsInARow)
-                        maxJewelsInARow = jewelsInARow;
+                    tmpJewels.Add(currentJewel);
                 }
                 else
-                    jewelsInARow = 0;
+                {
+                    if (tmpJewels.Count < 3)
+                        tmpJewels.Clear();
+                    else
+                    {
+                        AddTmpToResultJewels(resultJewels, tmpJewels);
+                        break;
+                    }
+                }
             }
 
-            if (maxJewelsInARow >= 3)
-                return true;
+            if (tmpJewels.Count >= 3)
+                AddTmpToResultJewels(resultJewels, tmpJewels);
         }
 
-        return false;
+        return resultJewels;
+    }
+
+    private static void AddTmpToResultJewels(List<Jewel> resultJewels, List<Jewel> tmpJewels)
+    {
+        foreach (var tmpJewel in tmpJewels)
+        {
+            if (!resultJewels.Contains(tmpJewel))
+                resultJewels.Add(tmpJewel);
+        }
+
+        tmpJewels.Clear();
     }
 }

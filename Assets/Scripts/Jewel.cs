@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public enum JewelType
 {
@@ -42,5 +43,16 @@ public class Jewel : MonoBehaviour
     public void OnMousePointerEnter()
     {
         Grid.JewelPointerEnter(GridIndex);
+    }
+
+    public void MakeMatched()
+    {
+        transform.DOScale(0f, 0.5f).OnComplete(RegainBaseScale);
+    }
+
+    //funkcja pomocnicza dopóki nie mamy spadania klejnotów powyżej tych usuniętych
+    private void RegainBaseScale()
+    {
+        transform.DOScale(1f, 0.5f);
     }
 }
